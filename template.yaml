@@ -1,0 +1,42 @@
+# https://github.com/awslabs/serverless-application-model/blob/develop/versions/2016-10-31.md
+# Indentation needs to be set with spaces, because YAML...
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: API endpoint to register a userid / username mapping
+
+Globals:
+    Api:
+        # API Gateway regional endpoints
+        EndpointConfiguration: EDGE
+        Cors:
+            AllowMethods: "'*'"
+            AllowHeaders: "'*'"
+            AllowOrigin: "'*'"
+
+Resources:
+    RegisterUserMappingFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            Handler: register-user-mapping.default
+            # Runtime: nodejs8.10
+            Runtime: nodejs10.x
+            Timeout: 180
+            ReservedConcurrentExecutions: 40
+            CodeUri: ./dist/register-user-mapping
+            Policies:
+                - AWSLambdaVPCAccessExecutionRole
+                - AmazonSESFullAccess
+                - SecretsManagerReadWrite
+            Events:
+                RegisterUserMappingResource:
+                    Type: Api
+                    Properties:
+                        Path: /{proxy+}
+                        Method: any
+
+Outputs:
+    RegisterUserMappingApi:
+        Description: URL to register a userId / userName mapping
+        Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/userMapping'
+        Export:
+            Name: RegisterUserMappingApi
