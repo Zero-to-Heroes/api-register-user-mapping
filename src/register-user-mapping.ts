@@ -20,6 +20,7 @@ export default async (event): Promise<any> => {
 			body: null,
 		};
 		console.log('sending back success reponse');
+		await mysql.end();
 		return response;
 	} catch (e) {
 		console.error('issue retrieving stats', e);
