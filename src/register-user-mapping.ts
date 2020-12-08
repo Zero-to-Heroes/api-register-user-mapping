@@ -1,3 +1,4 @@
+import SqlString from 'sqlstring';
 import { getConnection } from './db/rds';
 
 // This example demonstrates a NodeJS 8.10 async handler[1], however of course you could use
@@ -6,10 +7,11 @@ import { getConnection } from './db/rds';
 export default async (event): Promise<any> => {
 	try {
 		const mysql = await getConnection();
+		const escape = SqlString.escape;
 		const input: Input = JSON.parse(event.body);
 		const query = `
 			INSERT IGNORE INTO user_mapping (userId, userName)
-			VALUES ('${input.userId}', '${input.userName}')
+			VALUES (${escape(input.userId)}, ${escape(input.userName)})
 		`;
 		console.log('prepared query', query);
 		const dbResults: readonly any[] = await mysql.query(query);
